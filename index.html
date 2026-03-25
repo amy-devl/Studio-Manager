@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Studio Manager — Accueil</title>
+  <meta name="description" content="Réservez facilement des créneaux pour votre studio vidéo.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container nav">
+      <div class="brand">
+        <span class="logo" aria-hidden="true">🎬</span>
+        <span class="brand-name">Studio Manager</span>
+      </div>
+      <nav class="menu" aria-label="Navigation principale">
+        <a class="menu-link active" href="index.html">Accueil</a>
+        <a class="menu-link" href="reservation.html">Réservation</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="container hero-content">
+        <div>
+          <h1><span style="color:var(--primary)">Studio</span> Manager</h1>
+          <p class="subtitle">Vous êtes créateurs de contenus et souhaitez tourner vos vidéos dans un espace aménagé et décoré. Nous vous proposons notre lieu situé à Aubervilliers, avec ou sans matériel audiovisuel.</p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="reservation.html">Réserver un créneau</a>
+            <a class="btn btn-secondary" href="#features">En savoir plus</a>
+          </div>
+        </div>
+        <aside class="info-card">
+          <h2>Créez vos contenus vidéos</h2>
+          <p class="subtitle" style="margin:0 0 8px">Réservez votre lieu dès maintenant</p>
+          <div class="badge price">à partir de 37€ de l'heure</div>
+          <div class="contact">
+            <div><strong>Mail</strong> : <a href="mailto:vizuelb@gmail.com" class="menu-link" style="padding:0">vizuelb@gmail.com</a></div>
+            <div><strong>Tél :</strong> 07 82 20 68 99</div>
+          </div>
+          <small>*contactez nous pour connaître les conditions</small>
+        </aside>
+      </div>
+    </section>
+
+    <section id="features" class="features">
+      <div class="container grid-3">
+        <article class="card">
+          <div class="card-icon" aria-hidden="true">⚡</div>
+          <h3>Rapide</h3>
+          <p>Choisissez une date, une heure, validez : votre créneau est réservé instantanément.</p>
+        </article>
+        <article class="card">
+          <div class="card-icon" aria-hidden="true">📅</div>
+          <h3>Clair</h3>
+          <p>Visualisez les réservations existantes pour éviter tout chevauchement.</p>
+        </article>
+        <article class="card">
+          <div class="card-icon" aria-hidden="true">🔒</div>
+          <h3>Local</h3>
+          <p>Vos réservations sont stockées en local sur cet appareil (mode démo).</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="cta">
+      <div class="container cta-content">
+        <h2>Prêt à tourner ?</h2>
+        <p>Bloquez votre créneau dès maintenant et concentrez‑vous sur la création.</p>
+        <a class="btn btn-primary" href="reservation.html">Commencer une réservation</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-content">
+      <p>© <span id="year"></span> Studio Manager. Tous droits réservés.</p>
+      <nav class="footer-nav">
+        <a href="index.html">Accueil</a>
+        <span aria-hidden="true">·</span>
+        <a href="reservation.html">Réservation</a>
+      </nav>
+    </div>
+  </footer>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>

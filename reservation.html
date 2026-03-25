@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Studio Manager — Réservation</title>
+  <meta name="description" content="Réservez un créneau dans le studio vidéo.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container nav">
+      <div class="brand">
+        <span class="logo" aria-hidden="true">🎬</span>
+        <span class="brand-name">Studio Manager</span>
+      </div>
+      <nav class="menu" aria-label="Navigation principale">
+        <a class="menu-link" href="index.html">Accueil</a>
+        <a class="menu-link active" href="reservation.html">Réservation</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container" style="padding: 22px 0 40px;">
+    <h1 class="page-title">Réserver un créneau</h1>
+    <p class="page-subtitle">Choisissez une date et un horaire. Les conflits sont bloqués automatiquement.</p>
+
+    <div class="layout">
+      <section class="panel">
+        <h3>Informations de réservation</h3>
+        <div id="formAlert" class="alert" style="display:none"></div>
+        <form id="bookingForm" novalidate>
+          <div class="field">
+            <label for="date">Date</label>
+            <input id="date" name="date" type="date" required>
+          </div>
+          <div class="field" style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+            <div class="field">
+              <label for="start">Heure de début</label>
+              <input id="start" name="start" type="time" required>
+            </div>
+            <div class="field">
+              <label for="duration">Durée</label>
+              <select id="duration" name="duration" required>
+                <option value="60">1 h</option>
+                <option value="90">1 h 30</option>
+                <option value="120" selected>2 h</option>
+                <option value="180">3 h</option>
+                <option value="240">4 h</option>
+              </select>
+            </div>
+          </div>
+          <div class="field">
+            <label for="name">Nom</label>
+            <input id="name" name="name" type="text" placeholder="Nom du contact" required>
+          </div>
+          <div class="field">
+            <label for="email">E‑mail</label>
+            <input id="email" name="email" type="email" placeholder="contact@email.com" required>
+          </div>
+          <div class="field">
+            <label for="notes">Notes</label>
+            <textarea id="notes" name="notes" placeholder="Détails du tournage (optionnel)"></textarea>
+          </div>
+          <div class="form-actions">
+            <a class="btn" href="index.html">Annuler</a>
+            <button type="submit" class="btn btn-primary">Confirmer la réservation</button>
+          </div>
+          <p class="info">Les réservations sont stockées localement sur cet appareil (démo). Pour un usage réel, connectez un backend.</p>
+        </form>
+      </section>
+
+      <aside class="panel">
+        <h3>Créneaux du jour</h3>
+        <p class="muted" id="dayLabel"></p>
+        <div id="slots" class="list"></div>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-content">
+      <p>© <span id="year"></span> Studio Manager.</p>
+      <nav class="footer-nav">
+        <a href="index.html">Accueil</a>
+        <span aria-hidden="true">·</span>
+        <a href="reservation.html">Réservation</a>
+      </nav>
+    </div>
+  </footer>
+
+  <script>
+    const yearEl = document.getElementById('year');
+    if (yearEl) yearEl.textContent = new Date().getFullYear();
+
+    const storageKey = 'studioBookings';
+    const bookingForm = document.getElementById('bookingForm');
+    const dateInput = document.getElementById('date');
+    const startInput = document.getElementById('start');
+    const durationSelect = document.getElementById('duration');
+    const alertBox = document.getElementById('formAlert');
+    const slotsEl = document.getElementById('slots');
+    const dayLabel = document.getElementById('dayLabel');
+
+    function readBookings() {
+      try { return JSON.parse(localStorage.getItem(storageKey)) || []; } catch { return []; }
+    }
+    function writeBookings(all) { localStorage.setItem(storageKey, JSON.stringify(all)); }
+
+    function toMinutes(hhmm) {
+      const [h, m] = hhmm.split(':').map(Number);
+      return h * 60 + m;
+    }
+    function fromMinutes(total) {
+      const h = String(Math.floor(total / 60)).padStart(2,'0');
+      const m = String(total % 60).padStart(2,'0');
+      return `${h}:${m}`;
+    }
+    function sameDay(a, b) { return a === b; }
+
+    function formatDateLabel(isoDate) {
+      const d = new Date(isoDate + 'T12:00:00');
+      return d.toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+    }
+
+    function showAlert(type, msg) {
+      alertBox.className = `alert ${type === 'error' ? 'alert-error' : 'alert-success'}`;
+      alertBox.textContent = msg;
+      alertBox.style.display = 'block';
+      setTimeout(() => { alertBox.style.display = 'none'; }, 3500);
+    }
+
+    function refreshList() {
+      const all = readBookings();
+      const day = dateInput.value;
+      dayLabel.textContent = day ? formatDateLabel(day) : '';
+      const list = all.filter(b => sameDay(b.date, day)).sort((a, b) => a.startMinutes - b.startMinutes);
+      slotsEl.innerHTML = '';
+      if (list.length === 0) {
+        const el = document.createElement('div');
+        el.className = 'muted';
+        el.textContent = 'Aucun créneau pour cette date.';
+        slotsEl.appendChild(el);
+        return;
+      }
+      list.forEach(b => {
+        const row = document.createElement('div');
+        row.className = 'slot';
+        const left = document.createElement('div');
+        left.innerHTML = `<strong>${fromMinutes(b.startMinutes)}–${fromMinutes(b.endMinutes)}</strong>`;
+        const right = document.createElement('div');
+        right.className = 'who';
+        right.textContent = `${b.name} • ${b.email}`;
+        row.appendChild(left);
+        row.appendChild(right);
+        slotsEl.appendChild(row);
+      });
+    }
+
+    function hasOverlap(day, startMin, endMin) {
+      const all = readBookings();
+      return all.some(b => sameDay(b.date, day) && Math.max(b.startMinutes, startMin) < Math.min(b.endMinutes, endMin));
+    }
+
+    function setDefaultDateTime() {
+      const now = new Date();
+      const iso = now.toISOString().slice(0,10);
+      dateInput.value = iso;
+      const rounded = new Date(now);
+      rounded.setMinutes(now.getMinutes() < 30 ? 30 : 60, 0, 0);
+      startInput.value = String(rounded.getHours()).padStart(2,'0') + ':' + String(rounded.getMinutes()).padStart(2,'0');
+    }
+
+    bookingForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const day = dateInput.value;
+      const start = startInput.value;
+      const duration = Number(durationSelect.value || 0);
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const notes = document.getElementById('notes').value.trim();
+
+      if (!day || !start || !duration || !name || !email) {
+        showAlert('error', 'Veuillez compléter tous les champs obligatoires.');
+        return;
+      }
+
+      const startMin = toMinutes(start);
+      const endMin = startMin + duration;
+
+      if (endMin <= startMin) {
+        showAlert('error', "L'heure de fin doit être après l'heure de début.");
+        return;
+      }
+
+      if (hasOverlap(day, startMin, endMin)) {
+        showAlert('error', 'Conflit détecté avec un créneau existant. Choisissez un autre horaire.');
+        return;
+      }
+
+      const booking = { id: crypto.randomUUID(), date: day, startMinutes: startMin, endMinutes: endMin, name, email, notes };
+      const all = readBookings();
+      all.push(booking);
+      writeBookings(all);
+      showAlert('success', 'Réservation confirmée !');
+      refreshList();
+      bookingForm.reset();
+      dateInput.value = day;
+    });
+
+    dateInput.addEventListener('change', refreshList);
+    window.addEventListener('DOMContentLoaded', () => {
+      setDefaultDateTime();
+      refreshList();
+    });
+  </script>
+</body>
+</html>
+
