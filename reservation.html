@@ -32,7 +32,7 @@
       <section class="panel">
         <h3>Informations de réservation</h3>
         <div id="formAlert" class="alert" style="display:none"></div>
-        <form id="bookingForm" method="POST" autocomplete="off">
+        <form id="bookingForm" method="POST" autocomplete="off" action="https://formspree.io/f/mqegkkpd">
           <div class="field">
             <label for="date">Date</label>
             <input id="date" name="date" type="date" required>
@@ -65,6 +65,8 @@
             <label for="notes">Notes</label>
             <textarea id="notes" name="notes" placeholder="Détails du tournage (optionnel)"></textarea>
           </div>
+          <!-- Add a hidden field for the associated email address -->
+          <input type="hidden" name="to" value="arslane.mohamed.sio@gmail.com">
           <div class="form-actions">
             <a class="btn" href="index.html">Annuler</a>
             <button type="submit" class="btn btn-primary">Confirmer la réservation</button>
